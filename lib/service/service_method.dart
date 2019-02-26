@@ -8,9 +8,9 @@ Future getHomeContent() async {
   try {
     Response response;
     Dio dio = Dio();
-    dio.interceptors.add(LogInterceptor(requestBody: false));
+    // dio.interceptors.add(LogInterceptor(requestBody: false));
     dio.options.contentType =
-        ContentType.parse("application/x-www-form-urlcoded");
+        ContentType.parse("application/x-www-form-urlencoded");
     var formData = {'lon': '115.02932', 'lat': '35.76189'};
     response = await dio.post(servicePaht['homePageContext'], data: formData);
     if (response.statusCode == 200) {
