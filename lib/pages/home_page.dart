@@ -3,6 +3,7 @@ import '../service/service_method.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'dart:convert';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
@@ -28,6 +29,12 @@ class _HomePageState extends State<HomePage> {
                   (data['data']['slides'] as List).cast();
               List<Map> navigatorList =
                   (data['data']['category'] as List).cast();
+              String advertesPicture =
+                  data['data']["advertesPicture"]["PICTURE_ADDRESS"];
+
+              String leaderImage = data['data']['shopInfo']['leaderImage'];
+              String leaderPhone = data['data']['shopInfo']['leaderPhone'];
+
               return Column(
                 children: <Widget>[
                   MySwiper(
@@ -35,6 +42,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                   TopNavigator(
                     navigatorList: navigatorList,
+                  ),
+                  ADBanner(
+                    advertesPicture: advertesPicture,
+                  ),
+                  LeaderPhone(
+                    leaderImage: leaderImage,
+                    leaderPhone: leaderPhone,
                   )
                 ],
               );
@@ -111,5 +125,44 @@ class TopNavigator extends StatelessWidget {
         }).toList(),
       ),
     );
+  }
+}
+
+class ADBanner extends StatelessWidget {
+  final String advertesPicture;
+
+  ADBanner({Key key, this.advertesPicture}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Image.network(advertesPicture),
+    );
+  }
+}
+
+class LeaderPhone extends StatelessWidget {
+  final String leaderImage;
+  final String leaderPhone;
+
+  LeaderPhone({Key key, this.leaderImage, this.leaderPhone}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: InkWell(
+        onTap: _launcheURL,
+        child: Image.network(leaderImage),
+      ),
+    );
+  }
+
+  void _launcheURL() async {
+    String url = 'tel:' + leaderPhone;
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could notlanuch $url';
+    }
   }
 }
