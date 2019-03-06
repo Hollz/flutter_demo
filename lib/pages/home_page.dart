@@ -9,11 +9,28 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   String homePageContent = '正在获取数据...';
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    print('1111111');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    //初始化一次，全局可用
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
+    print('设备高度:${ScreenUtil.screenHeight}');
+    print('设备宽度:${ScreenUtil.screenWidth}');
+    print('设备密度:${ScreenUtil.pixelRatio}');
     return Container(
       child: Scaffold(
         appBar: AppBar(
@@ -34,10 +51,19 @@ class _HomePageState extends State<HomePage> {
 
               String leaderImage = data['data']['shopInfo']['leaderImage'];
               String leaderPhone = data['data']['shopInfo']['leaderPhone'];
-              
-              List<Map> recommendlist= (data['data']['recommend'] as List).cast();
+
+              List<Map> recommendlist =
+                  (data['data']['recommend'] as List).cast();
+
+              String floor1Pic = data['data']['floor1Pic']["PICTURE_ADDRESS"];
+              String floor2Pic = data['data']['floor2Pic']["PICTURE_ADDRESS"];
+              String floor3Pic = data['data']['floor3Pic']["PICTURE_ADDRESS"];
+
+              List<Map> floor1 = (data['data']['floor1'] as List).cast();
+              List<Map> floor2 = (data['data']['floor2'] as List).cast();
+              List<Map> floor3 = (data['data']['floor3'] as List).cast();
+
               return SingleChildScrollView(
-          
                 child: Column(
                   children: <Widget>[
                     MySwiper(
@@ -53,7 +79,27 @@ class _HomePageState extends State<HomePage> {
                       leaderImage: leaderImage,
                       leaderPhone: leaderPhone,
                     ),
-                    Recommend(recommendList: recommendlist,)
+                    Recommend(
+                      recommendList: recommendlist,
+                    ),
+                    FlootTitle(
+                      pictureAddress: floor1Pic,
+                    ),
+                    FlootContent(
+                      flootGoodsList: floor1,
+                    ),
+                    FlootTitle(
+                      pictureAddress: floor2Pic,
+                    ),
+                    FlootContent(
+                      flootGoodsList: floor2,
+                    ),
+                    FlootTitle(
+                      pictureAddress: floor3Pic,
+                    ),
+                    FlootContent(
+                      flootGoodsList: floor3,
+                    ),
                   ],
                 ),
               );
@@ -202,9 +248,11 @@ class Recommend extends StatelessWidget {
         width: ScreenUtil().setWidth(250),
         padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-            color: Colors.white,
-            border:
-                Border(bottom: BorderSide(width: 0.5, color: Colors.black12))),
+          color: Colors.white,
+          border: Border(
+            left: BorderSide(width: 0.5, color: Colors.black12),
+          ),
+        ),
         child: Column(
           children: <Widget>[
             Image.network(recommendList[index]['image']),
@@ -220,30 +268,93 @@ class Recommend extends StatelessWidget {
     );
   }
 
-  Widget _recommendList(){
-      return Container(
-        height: ScreenUtil().setHeight(333),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: recommendList.length,
-          itemBuilder: (context,index){
-            return _item(index);
-          },
-        ),
-      );
+  Widget _recommendList() {
+    return Container(
+      height: ScreenUtil().setHeight(333),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: recommendList.length,
+        itemBuilder: (context, index) {
+          return _item(index);
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       // height: ScreenUtil().setHeight(380),
       margin: EdgeInsets.only(top: 10.0),
       child: Column(
+        children: <Widget>[_titleWidget(), _recommendList()],
+      ),
+    );
+  }
+}
+
+class FlootTitle extends StatelessWidget {
+  final String pictureAddress;
+
+  FlootTitle({Key key, this.pictureAddress}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      child: Image.network(pictureAddress),
+    );
+  }
+}
+
+class FlootContent extends StatelessWidget {
+  final List flootGoodsList;
+
+  FlootContent({Key key, this.flootGoodsList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
         children: <Widget>[
-          _titleWidget(),
-          _recommendList()
+          _firstRow(),
+          _otherGoods(),
         ],
+      ),
+    );
+  }
+
+  Widget _firstRow() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(flootGoodsList[0]),
+        Column(
+          children: <Widget>[
+            _goodsItem(flootGoodsList[1]),
+            _goodsItem(flootGoodsList[2]),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _otherGoods() {
+    return Row(
+      children: <Widget>[
+        _goodsItem(flootGoodsList[3]),
+        _goodsItem(flootGoodsList[4]),
+      ],
+    );
+  }
+
+  Widget _goodsItem(Map goods) {
+    return Container(
+      width: ScreenUtil().setWidth(375),
+      child: InkWell(
+        onTap: () {
+          print('点击了商品');
+        },
+        child: Image.network(goods['image']),
       ),
     );
   }
