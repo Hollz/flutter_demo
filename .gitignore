@@ -68,6 +68,8 @@ build/
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Podfile
+**/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/
+**/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
