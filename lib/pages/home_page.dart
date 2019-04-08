@@ -402,7 +402,7 @@ class _HotGoodsState extends State<HotGoods> {
     super.initState();
   }
 
-  void _getHotGoods() {
+  void _getHotGoods() async {
     var formPage = {"page": page};
     request("homePageBelowConten", formData: formPage).then((val) {
       var data = json.decode(val.toString());
