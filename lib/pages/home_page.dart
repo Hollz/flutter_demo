@@ -407,10 +407,12 @@ class _HotGoodsState extends State<HotGoods> {
     request("homePageBelowConten", formData: formPage).then((val) {
       var data = json.decode(val.toString());
       List<Map> newGoodsList = (data['data'] as List).cast();
+      if(this.mounted){//是否加载
       setState(() {
         hotGoodsList.addAll(newGoodsList);
         page++;
       });
+      }
     });
   }
 
