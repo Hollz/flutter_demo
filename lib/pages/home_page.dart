@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import '../routers/application.dart';
 
 class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
@@ -155,6 +156,9 @@ class MySwiper extends StatelessWidget {
       height: ScreenUtil.getInstance().setHeight(333),
       width: ScreenUtil.getInstance().setWidth(750),
       child: Swiper(
+        onTap: (index){
+          Application.router.navigateTo(context, '/detail?id=${swiperDataList[index]['goodsId']}');    
+        },
         itemBuilder: (BuildContext contxt, int index) {
           return Image.network("${swiperDataList[index]['image']}",
               fit: BoxFit.fill);
@@ -271,9 +275,11 @@ class Recommend extends StatelessWidget {
     );
   }
 
-  Widget _item(index) {
+  Widget _item(context,index) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Application.router.navigateTo(context,"/detail?id=${recommendList[index]['goodsId']}");
+      },
       child: Container(
         height: ScreenUtil().setHeight(333),
         width: ScreenUtil().setWidth(250),
@@ -306,7 +312,7 @@ class Recommend extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: recommendList.length,
         itemBuilder: (context, index) {
-          return _item(index);
+          return _item(context,index);
         },
       ),
     );
@@ -348,42 +354,43 @@ class FlootContent extends StatelessWidget {
     return Container(
       child: Column(
         children: <Widget>[
-          _firstRow(),
-          _otherGoods(),
+          _firstRow(context),
+          _otherGoods(context),
         ],
       ),
     );
   }
 
-  Widget _firstRow() {
+  Widget _firstRow(BuildContext context) {
     return Row(
       children: <Widget>[
-        _goodsItem(flootGoodsList[0]),
+        _goodsItem(context,flootGoodsList[0]),
         Column(
           children: <Widget>[
-            _goodsItem(flootGoodsList[1]),
-            _goodsItem(flootGoodsList[2]),
+            _goodsItem(context,flootGoodsList[1]),
+            _goodsItem(context,flootGoodsList[2]),
           ],
         ),
       ],
     );
   }
 
-  Widget _otherGoods() {
+  Widget _otherGoods(BuildContext context) {
     return Row(
       children: <Widget>[
-        _goodsItem(flootGoodsList[3]),
-        _goodsItem(flootGoodsList[4]),
+        _goodsItem(context,flootGoodsList[3]),
+        _goodsItem(context,flootGoodsList[4]),
       ],
     );
   }
 
-  Widget _goodsItem(Map goods) {
+  Widget _goodsItem(BuildContext context ,Map goods) {
     return Container(
       width: ScreenUtil().setWidth(375),
       child: InkWell(
         onTap: () {
           print('点击了商品');
+           Application.router.navigateTo(context, "/detail?id=${goods['goodsId']}");
         },
         child: Image.network(goods['image']),
       ),
@@ -437,6 +444,7 @@ class _HotGoodsState extends State<HotGoods> {
         return InkWell(
           onTap: () {
             print("点击了火爆专区");
+            Application.router.navigateTo(context, '/detail?id=${val['goodsId']}');
           },
           child: Container(
             width: ScreenUtil().setWidth(372),
