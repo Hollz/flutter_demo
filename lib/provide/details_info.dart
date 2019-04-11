@@ -6,6 +6,9 @@ import 'dart:convert';
 class DetailsInfoProvide with ChangeNotifier {
   DetailsModel goodsInfo;
 
+  bool isLeft = true;
+  bool isRight = false;
+
   getDetailsInfo(String id) async {
     var formData = {'goodId': id};
 
@@ -14,7 +17,20 @@ class DetailsInfoProvide with ChangeNotifier {
       print(data);
 
       goodsInfo = DetailsModel.fromJson(data);
+      notifyListeners();
     });
+    
+  }
+
+  changeLeftAndRight(String changeState){
+    if(changeState == 'left'){
+        isLeft = true;
+        isRight = false;
+    }else{
+      isLeft = false;
+      isRight = true;
+    }
+
     notifyListeners();
   }
 }
