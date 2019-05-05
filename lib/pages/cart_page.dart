@@ -1,55 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provide/provide.dart';
-import '../provide/counter.dart';
+import '../model/cartInfo.dart';
+import '../provide/cart.dart';
+import './cart_page/cart_item.dart';
+import './cart_page/cart_bottom.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
+  @override
+  _CartPageState createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: <Widget>[Number(), AddBtn()],
-        ),
+      appBar: AppBar(
+        title: Text('购物车'),
       ),
-    );
-  }
-}
-
-class Number extends StatefulWidget {
-  _NumberState createState() => _NumberState();
-}
-
-class _NumberState extends State<Number> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 80.0),
-      child: Provide<Counter>(
-        builder: (context, child, counter) {
-          return Text(
-            "${counter.value}",
-            style: Theme.of(context).textTheme.display1,
-          );
+      body: FutureBuilder(
+        future: _getCartInfo(),
+        builder: (context, snapshot) {
+          List<CartInfoModel> cartList =
+              Provide.value<CartProvide>(context).cartList;
+          if (snapshot.hasData && cartList != null) {
+            return Stack(
+              children: <Widget>[
+                ListView.builder(
+                  itemCount: cartList.length,
+                  itemBuilder: (context, index) {
+                    return CartItem(cartList[index]);
+                  },
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: CartBottom(),
+                )
+              ],
+            );
+          } else {
+            return Text('正在加载');
+          }
         },
       ),
     );
   }
-}
 
-class AddBtn extends StatefulWidget {
-  _AddBtnState createState() => _AddBtnState();
-}
-
-class _AddBtnState extends State<AddBtn> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: RaisedButton(
-        onPressed: () {
-          Provide.value<Counter>(context).increment();
-        },
-        child: Text("增量"),
-      ),
-    );
+  Future<String> _getCartInfo() async {
+    await Provide.value<CartProvide>(context).getCartInfo();
+    return 'end';
   }
 }
