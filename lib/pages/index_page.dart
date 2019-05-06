@@ -4,6 +4,8 @@ import 'home_page.dart';
 import 'cart_page.dart';
 import 'category_page.dart';
 import 'member_page.dart';
+import 'package:provide/provide.dart';
+import '../provide/currentIndex.dart';
 
 class IndexPage extends StatefulWidget {
   _IndexPageState createState() => _IndexPageState();
@@ -36,37 +38,28 @@ class _IndexPageState extends State<IndexPage> {
     MemberPage(),
   ];
 
-  int currentIndex = 0;
-  var currentPage;
-
-  @override
-  void initState() {
-    currentPage = tabBodies[currentIndex];
-   
-    super.initState();
-   
-  }
-
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(245, 245, 245, 1.0),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: bottomTabs,
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-            currentPage = tabBodies[currentIndex];
-          });
-        },
-      ),
-      body: IndexedStack(
-        index: currentIndex,
-        children: tabBodies,
-      ),
+    return Provide<CurrentIndexProvide>(
+      builder: (context, child, val) {
+        int currentIndex =
+            Provide.value<CurrentIndexProvide>(context).currentIndex;
+        return Scaffold(
+          backgroundColor: Color.fromRGBO(245, 245, 245, 1.0),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            items: bottomTabs,
+            currentIndex: currentIndex,
+            onTap: (index) {
+              Provide.value<CurrentIndexProvide>(context).changeIndex(index);
+            },
+          ),
+          body: IndexedStack(
+            index: currentIndex,
+            children: tabBodies,
+          ),
+        );
+      },
     );
   }
 }
