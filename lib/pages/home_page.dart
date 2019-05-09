@@ -6,6 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import '../routers/application.dart';
+import 'package:provide/provide.dart';
+import '../provide/child_category.dart';
+import '../provide/currentIndex.dart';
+import '../model/category.dart';
 
 class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
@@ -156,8 +160,9 @@ class MySwiper extends StatelessWidget {
       height: ScreenUtil.getInstance().setHeight(333),
       width: ScreenUtil.getInstance().setWidth(750),
       child: Swiper(
-        onTap: (index){
-          Application.router.navigateTo(context, '/detail?id=${swiperDataList[index]['goodsId']}');    
+        onTap: (index) {
+          Application.router.navigateTo(
+              context, '/detail?id=${swiperDataList[index]['goodsId']}');
         },
         itemBuilder: (BuildContext contxt, int index) {
           return Image.network("${swiperDataList[index]['image']}",
@@ -176,10 +181,10 @@ class TopNavigator extends StatelessWidget {
 
   TopNavigator({Key key, this.navigatorList}) : super(key: key);
 
-  Widget _getViewItemUI(BuildContext context, item) {
+  Widget _getViewItemUI(BuildContext context, item, index) {
     return InkWell(
       onTap: () {
-        print('点击了....');
+        _goCategory(context, index, item['mallCategoryId']);
       },
       child: Column(
         children: <Widget>[
@@ -193,12 +198,25 @@ class TopNavigator extends StatelessWidget {
     );
   }
 
+  void _goCategory(context, index, String categoryId) async {
+    await request('getCategory').then((val) {
+      var data = json.decode(val.toString());
+      var category = CategoryModel.fromJson(data);
+      List list = category.data;
+
+      Provide.value<ChildCategory>(context).changeCategory(categoryId, index);
+      Provide.value<ChildCategory>(context)
+          .getChildCategory(list[index].bxMallSubDto, categoryId);
+      Provide.value<CurrentIndexProvide>(context).changeIndex(1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (this.navigatorList.length > 10) {
       this.navigatorList.removeRange(10, this.navigatorList.length);
     }
-
+    var tempIndex = -1;
     return Container(
       height: ScreenUtil.getInstance().setHeight(320),
       padding: EdgeInsets.all(3.0),
@@ -207,7 +225,8 @@ class TopNavigator extends StatelessWidget {
         crossAxisCount: 5,
         padding: EdgeInsets.all(5.0),
         children: navigatorList.map((item) {
-          return _getViewItemUI(context, item);
+          tempIndex++;
+          return _getViewItemUI(context, item, tempIndex);
         }).toList(),
       ),
     );
@@ -275,10 +294,11 @@ class Recommend extends StatelessWidget {
     );
   }
 
-  Widget _item(context,index) {
+  Widget _item(context, index) {
     return InkWell(
       onTap: () {
-        Application.router.navigateTo(context,"/detail?id=${recommendList[index]['goodsId']}");
+        Application.router.navigateTo(
+            context, "/detail?id=${recommendList[index]['goodsId']}");
       },
       child: Container(
         height: ScreenUtil().setHeight(333),
@@ -312,7 +332,7 @@ class Recommend extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: recommendList.length,
         itemBuilder: (context, index) {
-          return _item(context,index);
+          return _item(context, index);
         },
       ),
     );
@@ -364,11 +384,11 @@ class FlootContent extends StatelessWidget {
   Widget _firstRow(BuildContext context) {
     return Row(
       children: <Widget>[
-        _goodsItem(context,flootGoodsList[0]),
+        _goodsItem(context, flootGoodsList[0]),
         Column(
           children: <Widget>[
-            _goodsItem(context,flootGoodsList[1]),
-            _goodsItem(context,flootGoodsList[2]),
+            _goodsItem(context, flootGoodsList[1]),
+            _goodsItem(context, flootGoodsList[2]),
           ],
         ),
       ],
@@ -378,19 +398,20 @@ class FlootContent extends StatelessWidget {
   Widget _otherGoods(BuildContext context) {
     return Row(
       children: <Widget>[
-        _goodsItem(context,flootGoodsList[3]),
-        _goodsItem(context,flootGoodsList[4]),
+        _goodsItem(context, flootGoodsList[3]),
+        _goodsItem(context, flootGoodsList[4]),
       ],
     );
   }
 
-  Widget _goodsItem(BuildContext context ,Map goods) {
+  Widget _goodsItem(BuildContext context, Map goods) {
     return Container(
       width: ScreenUtil().setWidth(375),
       child: InkWell(
         onTap: () {
           print('点击了商品');
-           Application.router.navigateTo(context, "/detail?id=${goods['goodsId']}");
+          Application.router
+              .navigateTo(context, "/detail?id=${goods['goodsId']}");
         },
         child: Image.network(goods['image']),
       ),
@@ -414,11 +435,12 @@ class _HotGoodsState extends State<HotGoods> {
     request("homePageBelowConten", formData: formPage).then((val) {
       var data = json.decode(val.toString());
       List<Map> newGoodsList = (data['data'] as List).cast();
-      if(this.mounted){//是否加载
-      setState(() {
-        hotGoodsList.addAll(newGoodsList);
-        page++;
-      });
+      if (this.mounted) {
+        //是否加载
+        setState(() {
+          hotGoodsList.addAll(newGoodsList);
+          page++;
+        });
       }
     });
   }
@@ -444,7 +466,8 @@ class _HotGoodsState extends State<HotGoods> {
         return InkWell(
           onTap: () {
             print("点击了火爆专区");
-            Application.router.navigateTo(context, '/detail?id=${val['goodsId']}');
+            Application.router
+                .navigateTo(context, '/detail?id=${val['goodsId']}');
           },
           child: Container(
             width: ScreenUtil().setWidth(372),

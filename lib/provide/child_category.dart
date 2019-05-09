@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import '../model/category.dart';
 
+
 class ChildCategory with ChangeNotifier {
   List<BxMallSubDto> childCategoryList = [];
   int childIndex = 0;
+  int categoryIndex =0;
   String categoryId = '4';
   String subId = '';
   int page = 1;
   String noMoreText = '';
+
+  changeCategory(String id,int index){
+    categoryId = id;
+    categoryIndex = index;
+    subId = '';
+    notifyListeners();
+  }
 
   getChildCategory(List<BxMallSubDto> list, String id) {
     categoryId = id;
